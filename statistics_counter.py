@@ -68,7 +68,7 @@ class StatisticsCounter:
         self.text = self.text.replace("?", ".")
 
     def split_text_into_words(self):
-        sentences = list(filter(lambda s: len(s) != 0, self.text.split(".")))
+        sentences = list(filter(lambda x: len(x) != 0, self.text.split(".")))
         for s in sentences:
             self.words.append(list(filter(lambda x: len(x) != 0, s.split())))
 
