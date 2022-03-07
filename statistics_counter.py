@@ -19,6 +19,12 @@ class StatisticsCounter:
     def set_n(self, n):
         self.N = n
 
+    def get_k(self) -> int:
+        return self.K
+
+    def get_n(self) -> int:
+        return self.N
+
     def get_num_of_each_word(self) -> dict:
         return self.number_of_each_word
 
