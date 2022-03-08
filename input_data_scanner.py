@@ -4,7 +4,7 @@ class InputDataScanner:
         self.K = 0
         self.N = 0
 
-    def scan(self):
+    def scan(self) -> None:
         self.scan_text()
         answer = input("Do you want to enter N and K?(Y/n)")
         if answer == "Y" or answer == "y":
@@ -14,13 +14,13 @@ class InputDataScanner:
             self.K = 10
             self.N = 4
 
-    def scan_text(self):
+    def scan_text(self) -> None:
         self.text = input("Enter text: ")
         while len(self.text) == 0:
             print("Error! Empty text.")
             self.text = input("Try again: ")
 
-    def scan_k(self):
+    def scan_k(self) -> None:
         try:
             self.K = int(input("Enter K: "))
             if self.K < 0:
@@ -29,7 +29,7 @@ class InputDataScanner:
             print("Incorrect input!")
             exit()
 
-    def scan_n(self):
+    def scan_n(self) -> None:
         try:
             self.N = int(input("Enter N: "))
             if self.N < 0:

@@ -10,13 +10,13 @@ class StatisticsCounter:
         self.top_ngrams = dict()
         self.calculate_statistics()
 
-    def set_text(self, text):
+    def set_text(self, text: str) -> None:
         self.text = text
 
-    def set_k(self, k):
+    def set_k(self, k: int) -> None:
         self.K = k
 
-    def set_n(self, n):
+    def set_n(self, n: int) -> None:
         self.N = n
 
     def get_k(self) -> int:
@@ -37,7 +37,7 @@ class StatisticsCounter:
     def get_top_ngrams(self) -> dict:
         return self.top_ngrams
 
-    def calculate_statistics(self):
+    def calculate_statistics(self) -> None:
         self.text_refactoring()
         self.split_text_into_words()
         self.calculate_average_number_of_words_in_sentence()
@@ -45,12 +45,12 @@ class StatisticsCounter:
         self.count_number_of_each_word()
         self.calculate_top_ngrams()
 
-    def text_refactoring(self):
+    def text_refactoring(self) -> None:
         self.text = self.text.strip()
         self.text = self.text.lower()
         self.punctuation_refactoring()
 
-    def punctuation_refactoring(self):
+    def punctuation_refactoring(self) -> None:
         self.text = self.text.replace(",", "")
         self.text = self.text.replace(";", "")
         self.text = self.text.replace(":", "")
@@ -67,18 +67,18 @@ class StatisticsCounter:
         self.text = self.text.replace("!", ".")
         self.text = self.text.replace("?", ".")
 
-    def split_text_into_words(self):
+    def split_text_into_words(self) -> None:
         sentences = list(filter(lambda x: len(x) != 0, self.text.split(".")))
         for s in sentences:
             self.words.append(list(filter(lambda x: len(x) != 0, s.split())))
 
-    def calculate_average_number_of_words_in_sentence(self):
+    def calculate_average_number_of_words_in_sentence(self) -> None:
         num_of_words = 0
         for s in self.words:
             num_of_words += len(s)
         self.average_number_of_words_in_sentence = num_of_words / len(self.words)
 
-    def calculate_median_number_of_words_in_sentence(self):
+    def calculate_median_number_of_words_in_sentence(self) -> None:
         num_of_words_in_sentence = []
         for s in self.words:
             num_of_words_in_sentence.append(len(s))
@@ -91,12 +91,12 @@ class StatisticsCounter:
             min_index = int((len(num_of_words_in_sentence) - 1) / 2)
             self.median_number_of_words_in_sentence = num_of_words_in_sentence[min_index]
 
-    def count_number_of_each_word(self):
+    def count_number_of_each_word(self) -> None:
         for s in self.words:
             for w in s:
                 self.number_of_each_word[w] = self.number_of_each_word.get(w, 0) + 1
 
-    def calculate_top_ngrams(self):
+    def calculate_top_ngrams(self) -> None:
         ngrams = self.calculate_ngrams()
         sorted_keys = sorted(ngrams, key=ngrams.get, reverse=True)
         top_size = self.K
@@ -113,7 +113,7 @@ class StatisticsCounter:
                 self.add_ngrams(w, ngrams)
         return ngrams
 
-    def add_ngrams(self, word, ngrams):
+    def add_ngrams(self, word: str, ngrams: dict) -> None:
         for i in range(0, len(word) - self.N + 1):
             ngram = word[i: i + self.N]
             ngrams[ngram] = ngrams.get(ngram, 0) + 1
