@@ -23,7 +23,7 @@ class InputDataScanner:
     def scan_k(self) -> None:
         try:
             self.K = int(input("Enter K: "))
-            if self.K < 0:
+            if self.K <= 0:
                 raise ValueError
         except ValueError:
             print("Incorrect input!")
@@ -32,7 +32,7 @@ class InputDataScanner:
     def scan_n(self) -> None:
         try:
             self.N = int(input("Enter N: "))
-            if self.N < 0:
+            if self.N <= 0:
                 raise ValueError
         except ValueError:
             print("Incorrect input!")
