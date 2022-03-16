@@ -1,8 +1,8 @@
 class InputDataScanner:
-    def __init__(self):
-        self.text = ""
-        self.K = 0
-        self.N = 0
+    def __init__(self) -> None:
+        self._text = ""
+        self._K = 0
+        self._N = 0
 
     def scan(self) -> None:
         self.scan_text()
@@ -11,19 +11,19 @@ class InputDataScanner:
             self.scan_k()
             self.scan_n()
         else:
-            self.K = 10
-            self.N = 4
+            self._K = 10
+            self._N = 4
 
     def scan_text(self) -> None:
-        self.text = input("Enter text: ")
-        while len(self.text) == 0:
+        self._text = input("Enter text: ")
+        while len(self._text) == 0:
             print("Error! Empty text.")
-            self.text = input("Try again: ")
+            self._text = input("Try again: ")
 
     def scan_k(self) -> None:
         try:
-            self.K = int(input("Enter K: "))
-            if self.K <= 0:
+            self._K = int(input("Enter K: "))
+            if self._K <= 0:
                 raise ValueError
         except ValueError:
             print("Incorrect input!")
@@ -31,18 +31,21 @@ class InputDataScanner:
 
     def scan_n(self) -> None:
         try:
-            self.N = int(input("Enter N: "))
-            if self.N <= 0:
+            self._N = int(input("Enter N: "))
+            if self._N <= 0:
                 raise ValueError
         except ValueError:
             print("Incorrect input!")
             exit()
 
-    def get_text(self) -> str:
-        return self.text
+    @property
+    def text(self) -> str:
+        return self._text
 
-    def get_k(self) -> int:
-        return self.K
+    @property
+    def k(self) -> int:
+        return self._K
 
-    def get_n(self) -> int:
-        return self.N
+    @property
+    def n(self) -> int:
+        return self._N
