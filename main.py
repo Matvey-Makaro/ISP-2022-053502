@@ -1,4 +1,5 @@
 import inspect
+import math
 from types import *
 import Serializer
 import parser
@@ -12,6 +13,10 @@ def f(x):
     return math.sin(x * a * c)
 
 
+class Test:
+    def __init__(self, value):
+        self.value = value
+    staticValue = 3
 
 
 def main() -> None:
@@ -24,39 +29,10 @@ def main() -> None:
     dict = {"1": t, "2": l, "3": 3}
     tmp = Serializer.obj_to_intermediate_format(f)
     print(tmp)
-    # result = parser.parse(str(tmp))
     result = eval(str(tmp))
-    print(type(result))
     print(result)
     new_func = Serializer.intermediate_format_to_obj(result)
-    # print(f"Function {new_func(1)}")
-    # print(inspect.getmembers(math))
-    # print(type(math))
-    # print(math)
-    # print(math.__dict__)
-    # print(math.__name__)
-    help(ModuleType)
-    modul = ModuleType("math")
-    modul.__loader__ = math.__loader__
-
-
-    print(inspect.getmembers(modul))
-    print(inspect.getmembers(math))
-    print(math.__dir__())
-    print(math.__doc__)
-    print(f.__globals__)
-    print(f.__code__.co_names)
-    # print(f.__globals__('math').)
-
-    print("--------------------------------------------------------")
-    # for attr in CODE_ATTRIBUTES:
-    #     print(f"Attr: {attr}: Type: {type(main.__code__.__getattribute__(attr))}, value: {main.__code__.__getattribute__(attr)}")
-
-    # for key, value in main.__globals__.items():
-    #     print(inspect.ismodule(key))
-    #print(inspect.ismodule(main.__globals__["__loader__"]))
-
-
+    print(f"Function {new_func(1)}")
 
 
 if __name__ == '__main__':

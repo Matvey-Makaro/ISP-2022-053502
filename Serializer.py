@@ -1,14 +1,14 @@
 import inspect
 from types import *
 
-IMPORTANT_FUNCTION_ATTRIBUTES = [
+IMPORTANT_FUNCTION_ATTRIBUTES = (
     "__code__",
     "__globals__",
     "__defaults__",
     "__closure__"
-]
+)
 
-CODE_ATTRIBUTES = [
+CODE_ATTRIBUTES = (
     "co_argcount",
     "co_posonlyargcount",
     "co_kwonlyargcount",
@@ -25,7 +25,27 @@ CODE_ATTRIBUTES = [
     "co_lnotab",
     "co_freevars",
     "co_cellvars"
-]
+)
+
+ITERABLES = (
+    'list',
+    'tuple',
+    'set',
+    'dict',
+    'frozenset',
+    'bytearray',
+)
+
+PRIMITIVES = (
+    'int',
+    'float',
+    'complex',
+    'bool',
+    'str',
+    'bytes',
+    'NoneType',
+)
+
 
 CODE_FIELD_NAME = "__code__"
 GLOBALS_FIELD_NAME = "__globals__"
@@ -34,15 +54,8 @@ CLOSURE_FIELD_NAME = "__closure__"
 CODE_NAMES_FIELD_NAME = "co_names"
 
 
-def sequence_to_dict(sequence: list or tuple) -> dict:
-    result_list = []
-    for s in sequence:
-        result_list.append(obj_to_intermediate_format(s))
-    if isinstance(sequence, list):
-        return {'list': result_list}
-    if isinstance(sequence, tuple):
-        return {'tuple': result_list}
-    raise ValueError("Value error in sequence_to_dict")
+def iterable_to_dict(iterable: ITERABLES) -> dict:
+    return {type(iterable).__name__: [obj_to_intermediate_format(i) for i in iterable]}
 
 
 def dict_to_dict(dictionary: dict) -> dict:
@@ -76,46 +89,68 @@ def function_to_dict(function) -> dict:
                     result[GLOBALS_FIELD_NAME][co_name] = function.__name__
                     continue
                 if co_name in glob:  # and not inspect.ismodule(glob[co_name]) and not inspect.isbuiltin(glob[co_name])
-                    print(f"Debug: {glob[co_name]}")
                     result[GLOBALS_FIELD_NAME][co_name] = obj_to_intermediate_format(glob[co_name])
     result = {"function": result}
     return result
 
 
 def class_to_dict(cls) -> dict:
-    pass
+    result = {"__name__": cls.__name__}
+    for attr in dir(cls):
+        if attr == "__init__":
+            result[attr] = obj_to_intermediate_format(getattr(cls, attr))
+        if not attr.startswith("__"):
+            result[attr] = obj_to_intermediate_format(getattr(cls, attr))
+    return {"class": result}
 
 
-def obj_to_intermediate_format(obj) -> dict or int or float or complex or bool or str or bytes or None:
+def module_to_dict(module) -> dict:
+    result = {"name": module.__name__}
+    return {"module": result}
+
+
+# dict or int or float or complex or bool or str or bytes or None
+# isinstance(obj, (int, float, complex, bool, str, bytes)) or obj is None
+# isinstance(obj, (list, tuple))
+# Исправить метод iterables_to_dict для всех типов!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+def obj_to_intermediate_format(obj) -> dict or PRIMITIVES:
     result = {}
-    if isinstance(obj, (int, float, complex, bool, str, bytes)) or obj is None:
+    tp_name = type(obj).__name__
+    if tp_name in PRIMITIVES:
         return obj
-    if isinstance(obj, (list, tuple)):
-        return sequence_to_dict(obj)
+    if tp_name in ITERABLES:
+        return iterable_to_dict(obj)
     if isinstance(obj, dict):
         return dict_to_dict(obj)
-    if inspect.isfunction(obj) or inspect.ismethod(obj):
+    if inspect.isroutine(obj):
         return function_to_dict(obj)
     if inspect.isclass(obj):
-        pass
-    # if inspect.ismodule(obj):
-    #     return obj
+        return class_to_dict(obj)
+    if inspect.ismodule(obj):
+        return module_to_dict(obj)
     else:
         pass
 
 
-def format_to_tuple(form: tuple) -> tuple:
-    result = []
-    for element in form:
-        result.append(intermediate_format_to_obj(element))
-    return tuple(result)
+def format_to_tuple(form: list) -> tuple:
+    return tuple(intermediate_format_to_obj(i) for i in form)
 
 
 def format_to_list(form: list) -> list:
-    result = []
-    for element in form:
-        result.append(intermediate_format_to_obj(element))
-    return result
+    return [intermediate_format_to_obj(i) for i in form]
+
+
+def format_to_set(form: list) -> set:
+    return set([intermediate_format_to_obj(i) for i in form])
+
+
+def format_to_frozenset(form: list) -> frozenset:
+    return frozenset([intermediate_format_to_obj(i) for i in form])
+
+
+def format_to_bytearray(form: list) -> bytearray:
+    return bytearray([intermediate_format_to_obj(i) for i in form])
 
 
 def format_to_dict(form: dict) -> dict:
@@ -138,33 +173,43 @@ def form_to_code(form):
 
 
 def format_to_function(form):
-    for key, value in form.items():
-        if key == CODE_FIELD_NAME:
-            code = form_to_code(value)
-        elif key == GLOBALS_FIELD_NAME:
-            glob = value
-        elif key == DEFAULTS_FIELD_NAME:
-            default = value
-        elif key == CLOSURE_FIELD_NAME:
-            closure = value
-        else:
-            raise ValueError("Incorrect key value in function format")
+    code = form_to_code(form[CODE_FIELD_NAME])
+    glob = intermediate_format_to_obj(form[GLOBALS_FIELD_NAME])
+    default = form[DEFAULTS_FIELD_NAME]
+
+    # Добавить сериализацию для closure
+    closure = form[CLOSURE_FIELD_NAME]
     return FunctionType(code, glob, None, default, closure)
 
 
-def intermediate_format_to_obj(form: dict or int or float or complex or bool or str or bytes or None):
+def format_to_module(form):
+    return __import__(form["name"])
+
+
+def format_to_iterable(form: dict) -> ITERABLES:
+    for key, value in form.items():
+        if key == ITERABLES[0]:
+            return format_to_list(value)
+        if key == ITERABLES[1]:
+            return format_to_tuple(value)
+        if key == ITERABLES[2]:
+            return format_to_set(value)
+        if key == ITERABLES[3]:
+            return format_to_frozenset(value)
+        if key == ITERABLES[4]:
+            return format_to_bytearray(value)
+
+
+def intermediate_format_to_obj(form: PRIMITIVES):
     if isinstance(form, dict):
         for key, value in form.items():
-            if key == 'tuple':
-                return format_to_tuple(value)
-            if key == 'list':
-                return format_to_list(value)
+            if key in ITERABLES:
+                return format_to_iterable(form)
             if key == 'function':
                 return format_to_function(value)
+            if key == 'module':
+                return format_to_module(value)
             else:
                 return format_to_dict(form)
-
-    if isinstance(form, (int, float, complex, bool, str, bytes)):
+    if type(form).__name__ in PRIMITIVES:
         return form
-
-
