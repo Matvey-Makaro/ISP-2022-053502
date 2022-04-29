@@ -1,12 +1,7 @@
+import builtins
 import inspect
 from types import *
 
-IMPORTANT_FUNCTION_ATTRIBUTES = (
-    "__code__",
-    "__globals__",
-    "__defaults__",
-    "__closure__"
-)
 
 CODE_ATTRIBUTES = (
     "co_argcount",
@@ -31,7 +26,6 @@ ITERABLES = (
     'list',
     'tuple',
     'set',
-    'dict',
     'frozenset',
     'bytearray',
 )
@@ -95,18 +89,36 @@ def function_to_dict(function) -> dict:
 
 
 def class_to_dict(cls) -> dict:
-    result = {"__name__": cls.__name__}
-    for attr in dir(cls):
-        if attr == "__init__":
-            result[attr] = obj_to_intermediate_format(getattr(cls, attr))
-        if not attr.startswith("__"):
-            result[attr] = obj_to_intermediate_format(getattr(cls, attr))
+    # Возможно стоит убрать bases, потому что не десериализованных классах не работают встроенные функции
+    bases = tuple(filter(
+        lambda base: not getattr(builtins, base.__name__, None) and not getattr(builtins, base.__qualname__, None),
+        cls.__bases__))
+    attrs_names = filter(lambda key: key != "__dict__" and key != "__weakref__", cls.__dict__.keys())
+    attrs = {}
+    for name in attrs_names:
+        attrs[name] = cls.__dict__[name]
+    result = {"name": cls.__name__, "qualname": cls.__qualname__,
+              "bases": obj_to_intermediate_format(bases),   # cls.__bases__
+              "attrs": obj_to_intermediate_format(attrs)}
     return {"class": result}
+
+
+    # result = {"__name__": cls.__name__}
+    # for attr in dir(cls):
+    #     if attr == "__init__":
+    #         result[attr] = obj_to_intermediate_format(getattr(cls, attr))
+    #     if not attr.startswith("__"):
+    #         result[attr] = obj_to_intermediate_format(getattr(cls, attr))
+    # return {"class": result}
 
 
 def module_to_dict(module) -> dict:
     result = {"name": module.__name__}
     return {"module": result}
+
+
+def instance_of_class_to_dict(obj) -> dict:
+    pass
 
 
 # dict or int or float or complex or bool or str or bytes or None
@@ -129,8 +141,8 @@ def obj_to_intermediate_format(obj) -> dict or PRIMITIVES:
         return class_to_dict(obj)
     if inspect.ismodule(obj):
         return module_to_dict(obj)
-    else:
-        pass
+
+    return instance_of_class_to_dict(obj)
 
 
 def format_to_tuple(form: list) -> tuple:
@@ -151,6 +163,20 @@ def format_to_frozenset(form: list) -> frozenset:
 
 def format_to_bytearray(form: list) -> bytearray:
     return bytearray([intermediate_format_to_obj(i) for i in form])
+
+
+def format_to_iterable(form: dict) -> ITERABLES:
+    for key, value in form.items():
+        if key == ITERABLES[0]:
+            return format_to_list(value)
+        if key == ITERABLES[1]:
+            return format_to_tuple(value)
+        if key == ITERABLES[2]:
+            return format_to_set(value)
+        if key == ITERABLES[3]:
+            return format_to_frozenset(value)
+        if key == ITERABLES[4]:
+            return format_to_bytearray(value)
 
 
 def format_to_dict(form: dict) -> dict:
@@ -186,22 +212,17 @@ def format_to_module(form):
     return __import__(form["name"])
 
 
-def format_to_iterable(form: dict) -> ITERABLES:
-    for key, value in form.items():
-        if key == ITERABLES[0]:
-            return format_to_list(value)
-        if key == ITERABLES[1]:
-            return format_to_tuple(value)
-        if key == ITERABLES[2]:
-            return format_to_set(value)
-        if key == ITERABLES[3]:
-            return format_to_frozenset(value)
-        if key == ITERABLES[4]:
-            return format_to_bytearray(value)
+def format_to_class(cls: dict):
+    bases = intermediate_format_to_obj(cls["bases"])
+    attrs = intermediate_format_to_obj(cls["attrs"])
+
+    result = type(cls["name"], bases, attrs)
+    result.__qualname__ = cls["qualname"]
+    return result
 
 
-def intermediate_format_to_obj(form: PRIMITIVES):
-    if isinstance(form, dict):
+def intermediate_format_to_obj(form: dict or PRIMITIVES):
+    if type(form) == dict:
         for key, value in form.items():
             if key in ITERABLES:
                 return format_to_iterable(form)
@@ -209,7 +230,13 @@ def intermediate_format_to_obj(form: PRIMITIVES):
                 return format_to_function(value)
             if key == 'module':
                 return format_to_module(value)
+            if key == 'class':
+                return format_to_class(value)
             else:
                 return format_to_dict(form)
+        else:
+            return format_to_dict(form)
+        # Поменять сверху два else, которые делают одно и тоже, и цикл который проходит всего один раз
     if type(form).__name__ in PRIMITIVES:
         return form
+    raise ValueError(f"Unknown type in intermediate_format_to_obj {type(form)}")
