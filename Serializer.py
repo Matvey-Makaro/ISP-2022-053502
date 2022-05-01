@@ -2,7 +2,6 @@ import builtins
 import inspect
 from types import *
 
-
 CODE_ATTRIBUTES = (
     "co_argcount",
     "co_posonlyargcount",
@@ -40,7 +39,6 @@ PRIMITIVES = (
     'NoneType',
 )
 
-
 CODE_FIELD_NAME = "__code__"
 GLOBALS_FIELD_NAME = "__globals__"
 DEFAULTS_FIELD_NAME = "__defaults__"
@@ -53,17 +51,17 @@ def iterable_to_dict(iterable: ITERABLES) -> dict:
 
 
 def dict_to_dict(dictionary: dict) -> dict:
-    result = {}
-    for key, value in dictionary.items():
-        result[key] = obj_to_intermediate_format(value)
-    # return {'dict': result}
-    return result
+    return {key: obj_to_intermediate_format(value) for key, value in dictionary.items()}
 
 
 def code_to_dict(code) -> dict:
     result = {}
     for attr in CODE_ATTRIBUTES:
-        result[attr] = obj_to_intermediate_format(code.__getattribute__(attr))
+        # result[attr] = obj_to_intermediate_format(code.__getattribute__(attr))
+        if attr == "co_code" or attr == 'co_lnotab':
+            result[attr] = obj_to_intermediate_format(code.__getattribute__(attr).hex())
+        else:
+            result[attr] = obj_to_intermediate_format(code.__getattribute__(attr))
     return result
 
 
@@ -93,32 +91,22 @@ def class_to_dict(cls) -> dict:
     bases = tuple(filter(
         lambda base: not getattr(builtins, base.__name__, None) and not getattr(builtins, base.__qualname__, None),
         cls.__bases__))
-    attrs_names = filter(lambda key: key != "__dict__" and key != "__weakref__", cls.__dict__.keys())
-    attrs = {}
-    for name in attrs_names:
-        attrs[name] = cls.__dict__[name]
+    attrs = {key: value for key, value in cls.__dict__.items() if key != "__dict__" and key != "__weakref__"}
     result = {"name": cls.__name__, "qualname": cls.__qualname__,
-              "bases": obj_to_intermediate_format(bases),   # cls.__bases__
+              "bases": obj_to_intermediate_format(bases),
               "attrs": obj_to_intermediate_format(attrs)}
     return {"class": result}
 
 
-    # result = {"__name__": cls.__name__}
-    # for attr in dir(cls):
-    #     if attr == "__init__":
-    #         result[attr] = obj_to_intermediate_format(getattr(cls, attr))
-    #     if not attr.startswith("__"):
-    #         result[attr] = obj_to_intermediate_format(getattr(cls, attr))
-    # return {"class": result}
+def instance_of_class_to_dict(obj) -> dict:
+    result = {"class": obj_to_intermediate_format(obj.__class__),
+              "attrs": obj_to_intermediate_format(obj.__dict__)}
+    return {"object": result}
 
 
 def module_to_dict(module) -> dict:
     result = {"name": module.__name__}
     return {"module": result}
-
-
-def instance_of_class_to_dict(obj) -> dict:
-    pass
 
 
 # dict or int or float or complex or bool or str or bytes or None
@@ -154,7 +142,7 @@ def format_to_list(form: list) -> list:
 
 
 def format_to_set(form: list) -> set:
-    return set([intermediate_format_to_obj(i) for i in form])
+    return {intermediate_format_to_obj(i) for i in form}
 
 
 def format_to_frozenset(form: list) -> frozenset:
@@ -191,17 +179,19 @@ def form_to_code(form):
         intermediate_format_to_obj(form[CODE_ATTRIBUTES[0]]), intermediate_format_to_obj(form[CODE_ATTRIBUTES[1]]),
         intermediate_format_to_obj(form[CODE_ATTRIBUTES[2]]), intermediate_format_to_obj(form[CODE_ATTRIBUTES[3]]),
         intermediate_format_to_obj(form[CODE_ATTRIBUTES[4]]), intermediate_format_to_obj(form[CODE_ATTRIBUTES[5]]),
-        intermediate_format_to_obj(form[CODE_ATTRIBUTES[6]]), intermediate_format_to_obj(form[CODE_ATTRIBUTES[7]]),
+        intermediate_format_to_obj(bytes.fromhex(form[CODE_ATTRIBUTES[6]])), intermediate_format_to_obj(form[CODE_ATTRIBUTES[7]]),
         intermediate_format_to_obj(form[CODE_ATTRIBUTES[8]]), intermediate_format_to_obj(form[CODE_ATTRIBUTES[9]]),
         intermediate_format_to_obj(form[CODE_ATTRIBUTES[10]]), intermediate_format_to_obj(form[CODE_ATTRIBUTES[11]]),
-        intermediate_format_to_obj(form[CODE_ATTRIBUTES[12]]), intermediate_format_to_obj(form[CODE_ATTRIBUTES[13]]),
+        intermediate_format_to_obj(form[CODE_ATTRIBUTES[12]]), intermediate_format_to_obj(bytes.fromhex(form[CODE_ATTRIBUTES[13]])),
         intermediate_format_to_obj(form[CODE_ATTRIBUTES[14]]), intermediate_format_to_obj(form[CODE_ATTRIBUTES[15]]))
 
 
 def format_to_function(form):
     code = form_to_code(form[CODE_FIELD_NAME])
-    glob = intermediate_format_to_obj(form[GLOBALS_FIELD_NAME])
     default = form[DEFAULTS_FIELD_NAME]
+    glob = intermediate_format_to_obj(form[GLOBALS_FIELD_NAME])
+    for key, value in globals().items():
+        glob[key] = value
 
     # Добавить сериализацию для closure
     closure = form[CLOSURE_FIELD_NAME]
@@ -221,6 +211,23 @@ def format_to_class(cls: dict):
     return result
 
 
+def format_to_instance_of_class(form: dict):
+    cls = intermediate_format_to_obj(form["class"])
+    attrs = intermediate_format_to_obj(form["attrs"])
+    tmp_init = getattr(cls, "__init__", None)
+
+    def __init__(self):
+        pass
+
+    cls.__init__ = __init__
+    result = cls()
+    cls.__init__ = tmp_init
+    result.__class__ = cls
+    for key, value in attrs.items():
+        setattr(result, key, value)
+    return result
+
+
 def intermediate_format_to_obj(form: dict or PRIMITIVES):
     if type(form) == dict:
         for key, value in form.items():
@@ -232,6 +239,8 @@ def intermediate_format_to_obj(form: dict or PRIMITIVES):
                 return format_to_module(value)
             if key == 'class':
                 return format_to_class(value)
+            if key == 'object':
+                return format_to_instance_of_class(value)
             else:
                 return format_to_dict(form)
         else:
