@@ -6,6 +6,8 @@ import AnotherSerializer
 import parser
 import time
 import pytest
+import json
+from json_serializer import JsonSerializer
 
 import math
 
@@ -29,7 +31,7 @@ class Sup:
     pass
 
 
-class Test():
+class Test(Sup):
     static_value = 3
 
     def __init__(self, value):
@@ -77,32 +79,40 @@ def main() -> None:
     # print(new_func)
     # print(new_func(1))
 
-    test_obj = Test(44)
-    ser_test_obj = Serializer.obj_to_intermediate_format(test_obj)
-    print(f"ser_test_obj: {ser_test_obj}")
-    deser_test_obj = Serializer.intermediate_format_to_obj(ser_test_obj)
-    print(f"deser_test_obj: {deser_test_obj}")
-    print(deser_test_obj.get_value())
-    deser_test_obj.print_value()
-    tmp = parser.serialize_json(ser_test_obj)
-    print(f"tmp: {tmp}")
-    deser_tmp = parser.deserialize_json(tmp)
-    print(f"Deser_tmp: {deser_tmp}")
-    deser_tmp = Serializer.intermediate_format_to_obj(deser_tmp)
-    print(deser_tmp)
-    deser_tmp.print_value()
-    print(deser_tmp.get_value())
-
+    # test_obj = Test(44)
     # ser_test_obj = Serializer.obj_to_intermediate_format(test_obj)
-    # string = str(ser_test_obj)
-    # print(string)
-    # print(f"Open: {string.count('{')}")
-    # print(f"Close: {string.count('}')}")
+    # print(f"ser_test_obj: {ser_test_obj}")
+    # deser_test_obj = Serializer.intermediate_format_to_obj(ser_test_obj)
+    # print(f"deser_test_obj: {deser_test_obj}")
+    # print(deser_test_obj.get_value())
+    # deser_test_obj.print_value()
     # tmp = parser.serialize_json(ser_test_obj)
+    # print(f"tmp: {tmp}")
+    # deser_tmp = parser.deserialize_json(tmp)
+    # print(f"Deser_tmp: {deser_tmp}")
+    # deser_tmp = Serializer.intermediate_format_to_obj(deser_tmp)
+    # print(deser_tmp)
+    # deser_tmp.print_value()
+    # print(deser_tmp.get_value())
+    # with open("file.txt", 'w') as file:
+    #     json.dump(l, file)
+    # print(Serializer.obj_to_intermediate_format(t))
+    # tmp = json.dumps(dict)
     # print(tmp)
-    # print(f"Open: {tmp.count('{')}")
-    # print(f"Close: {tmp.count('}')}")
-    # print(f"deser_json: {parser.deserialize_json(tmp)}")
+    # print(Serializer.obj_to_intermediate_format(dict))
+    # print(type(json.loads(tmp)))
+    # ser_test_obj = Serializer.obj_to_intermediate_format(test_obj)
+    # print(json.dumps(ser_test_obj))
+
+    serializer = JsonSerializer()
+    ser_func = serializer.dumps(f)
+    desr_func = serializer.loads(ser_func)
+    print(desr_func)
+    print(desr_func(5))
+    serializer.dump(f, "file.txt")
+    new_func = serializer.load("file.txt")
+    print(new_func)
+    print(new_func(5))
 
 
 if __name__ == '__main__':
