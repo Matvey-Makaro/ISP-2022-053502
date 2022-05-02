@@ -1,7 +1,7 @@
 JSON_WHITESPACE = [' ', '\t', '\b', '\n', '\r']
 
 
-class JsonParser:
+class JsonConverter:
     @staticmethod
     def _parse_list(tokens, index):
         json_array = []
@@ -11,7 +11,7 @@ class JsonParser:
             return json_array, index + 1
 
         while index < len(tokens):
-            json, index = JsonParser._parse(tokens, index)
+            json, index = JsonConverter._parse(tokens, index)
             json_array.append(json)
 
             if index >= len(tokens):
@@ -32,7 +32,7 @@ class JsonParser:
             if type(key) == str:
                 index += 1
 
-            value, index = JsonParser._parse(tokens, index + 1)
+            value, index = JsonConverter._parse(tokens, index + 1)
 
             if index >= len(tokens):
                 break
@@ -54,9 +54,9 @@ class JsonParser:
         if t == '{':
             if tokens[index + 1] == '}':
                 return {}, index + 2
-            return JsonParser._parse_dict(tokens, index + 1)
+            return JsonConverter._parse_dict(tokens, index + 1)
         if t == '[':
-            return JsonParser._parse_list(tokens, index + 1)
+            return JsonConverter._parse_list(tokens, index + 1)
 
         return t, index + 1
 
@@ -105,11 +105,11 @@ class JsonParser:
 
     @staticmethod
     def _token_split_bool(string, cur_index):
-        a, b = JsonParser._token_split_by(string, cur_index, 'true', True)
+        a, b = JsonConverter._token_split_by(string, cur_index, 'true', True)
         if b is not None:
             return a, b
 
-        a, b = JsonParser._token_split_by(string, cur_index, 'false', False)
+        a, b = JsonConverter._token_split_by(string, cur_index, 'false', False)
         if b is not None:
             return a, b
 
@@ -117,7 +117,7 @@ class JsonParser:
 
     @staticmethod
     def _token_split_null(string, cur_index):
-        a, b = JsonParser._token_split_by(string, cur_index, 'null', True)
+        a, b = JsonConverter._token_split_by(string, cur_index, 'null', True)
         if b is not None:
             return a, b
 
@@ -145,22 +145,22 @@ class JsonParser:
         i = 0
 
         while i < len(string):
-            result, i = JsonParser._token_split_string(string, i)
+            result, i = JsonConverter._token_split_string(string, i)
             if result is not None:
                 tokens.append(result)
                 continue
 
-            result, i = JsonParser._token_split_number(string, i)
+            result, i = JsonConverter._token_split_number(string, i)
             if result is not None:
                 tokens.append(result)
                 continue
 
-            result, i = JsonParser._token_split_bool(string, i)
+            result, i = JsonConverter._token_split_bool(string, i)
             if result is not None:
                 tokens.append(result)
                 continue
 
-            result, i = JsonParser._token_split_null(string, i)
+            result, i = JsonConverter._token_split_null(string, i)
             if result is not None:
                 tokens.append(None)
                 continue
@@ -176,24 +176,24 @@ class JsonParser:
         return tokens
 
     @staticmethod
-    def deserialize_json(string):
-        tokens = JsonParser._token_split(string)
+    def from_json(string):
+        tokens = JsonConverter._token_split(string)
         # print(f"Tokens: {tokens}")
         # print(f"open breackets: {tokens.count('{')}")
         # print(f"close: {tokens.count('}')}")
         # print(f"open:{tokens.count('[')}")
         # print(f"close: {tokens.count(']')}")
-        result = JsonParser._parse(tokens)[0]
+        result = JsonConverter._parse(tokens)[0]
         return result
 
     @staticmethod
-    def serialize_json(obj):
+    def to_json(obj):
         if type(obj) == dict:
             result = '{'
 
             for i, (key, val) in enumerate(obj.items()):
                 key = key.replace('"', '\\"')
-                result += f'"{key}": {JsonParser.serialize_json(val)}'
+                result += f'"{key}": {JsonConverter.to_json(val)}'
 
                 if i < len(obj) - 1:
                     result += ', '
@@ -209,7 +209,7 @@ class JsonParser:
             result = '['
 
             for i, val in enumerate(obj):
-                result += JsonParser.serialize_json(val)
+                result += JsonConverter.to_json(val)
 
                 if i < len(obj) - 1:
                     result += ', '

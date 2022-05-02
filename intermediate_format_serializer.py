@@ -54,7 +54,8 @@ class IntermediateFormatSerializer:
 
     @staticmethod
     def dict_to_dict(dictionary: dict) -> dict:
-        return {key: IntermediateFormatSerializer.obj_to_intermediate_format(value) for key, value in dictionary.items()}
+        return {key: IntermediateFormatSerializer.obj_to_intermediate_format(value) for
+                key, value in dictionary.items()}
 
     @staticmethod
     def code_to_dict(code) -> dict:
@@ -62,7 +63,8 @@ class IntermediateFormatSerializer:
         for attr in CODE_ATTRIBUTES:
             # result[attr] = obj_to_intermediate_format(code.__getattribute__(attr))
             if attr == "co_code" or attr == 'co_lnotab':
-                result[attr] = IntermediateFormatSerializer.obj_to_intermediate_format(code.__getattribute__(attr).hex())
+                result[attr] = IntermediateFormatSerializer.obj_to_intermediate_format(
+                    code.__getattribute__(attr).hex())
             else:
                 result[attr] = IntermediateFormatSerializer.obj_to_intermediate_format(code.__getattribute__(attr))
         return result
@@ -83,8 +85,10 @@ class IntermediateFormatSerializer:
                     if co_name == function.__name__:
                         result[GLOBALS_FIELD_NAME][co_name] = function.__name__
                         continue
-                    if co_name in glob:  # and not inspect.ismodule(glob[co_name]) and not inspect.isbuiltin(glob[co_name])
-                        result[GLOBALS_FIELD_NAME][co_name] = IntermediateFormatSerializer.obj_to_intermediate_format(glob[co_name])
+                        # and not inspect.ismodule(glob[co_name]) and not inspect.isbuiltin(glob[co_name])
+                    if co_name in glob:
+                        result[GLOBALS_FIELD_NAME][co_name] = \
+                            IntermediateFormatSerializer.obj_to_intermediate_format(glob[co_name])
         result = {"function": result}
         return result
 

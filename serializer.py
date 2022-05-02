@@ -2,18 +2,22 @@ from abc import ABC, abstractmethod
 
 
 class Serializer(ABC):
+    @staticmethod
     @abstractmethod
-    def dumps(self, obj) -> str:
+    def dumps(obj) -> str:
         pass
 
+    @staticmethod
     @abstractmethod
-    def dump(self, obj, file: str) -> None:
+    def dump(obj, file: str) -> None:
         pass
 
+    @staticmethod
     @abstractmethod
-    def loads(self, serialized_obj: str):
+    def loads(serialized_obj: str):
         pass
 
+    @staticmethod
     @abstractmethod
-    def load(self, file: str):
+    def load(file: str):
         pass
