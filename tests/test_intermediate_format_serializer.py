@@ -11,21 +11,21 @@ def f(x):
     return math.sin(x * a * c)
 
 
-class ExampleClass():
+class ExampleClass:
     static_value = 3
 
     def __init__(self, value):
         self.value = value
         self.test_value = 10
 
-    def get_value(self):
+    def get_value(self) -> int:
         return self.value + 1
 
-    def print_value(self):
+    def print_value(self) -> None:
         print(self.value)
 
 
-def test_iterable_to_dict():
+def test_iterable_to_dict() -> None:
     # list
     lst = [1, 2, "Hello", 'world', 3.14, ('tuple1', 2), {'item1': 1}]
     intermediate_lst = IntermediateFormatSerializer.iterable_to_dict(lst)
@@ -47,7 +47,7 @@ def test_iterable_to_dict():
     assert intermediate_b_arr == expected_b_arr
 
 
-def test_dict_to_dict():
+def test_dict_to_dict() -> None:
     dct = {"lst": [1, 2, "Hello", 'world', 3.14, ('tuple1', 2), {'item1': 1}],
            "tpl": (1, 2, "Hello", 'world', 3.14, ('tuple1', 2), {"item1": 1}, ["list", 3.14, 10, 12]),
            "one": 1}
@@ -58,7 +58,7 @@ def test_dict_to_dict():
     assert intermediate_dct == expected_dct
 
 
-def test_code_to_dict():
+def test_code_to_dict() -> None:
     code = f.__code__
     intermediate_code = IntermediateFormatSerializer.code_to_dict(code)
     expected_code = {'co_argcount': 1, 'co_posonlyargcount': 0, 'co_kwonlyargcount': 0, 'co_nlocals': 2,
@@ -74,7 +74,7 @@ def test_code_to_dict():
     assert intermediate_code == expected_code
 
 
-def test_function_to_dict():
+def test_function_to_dict() -> None:
     func = f
     intermediate_func = IntermediateFormatSerializer.function_to_dict(func)
     expected_func = {'function': {'__closure__': None,
@@ -97,14 +97,14 @@ def test_function_to_dict():
     assert intermediate_func == expected_func
 
 
-def test_module_to_dict():
+def test_module_to_dict() -> None:
     module = __import__("math")
     intermediate_module = IntermediateFormatSerializer.module_to_dict(module)
     expected_module = {'module': {'name': 'math'}}
     assert intermediate_module == expected_module
 
 
-def test_class_to_dict():
+def test_class_to_dict() -> None:
     cls = ExampleClass
     intermediate_cls = IntermediateFormatSerializer.class_to_dict(cls)
     init_lno = ExampleClass.__init__.__code__.co_firstlineno
@@ -164,7 +164,7 @@ def test_class_to_dict():
     assert intermediate_cls == expected_cls
 
 
-def test_instance_of_class_to_dict():
+def test_instance_of_class_to_dict() -> None:
     instance = ExampleClass(10)
     intermediate_instance = IntermediateFormatSerializer.instance_of_class_to_dict(instance)
     location = '/home/matvey/Documents/Projects/Python lab rab/lab rab 2/tests/test_intermediate_format_serializer.py'
@@ -269,7 +269,7 @@ def test_instance_of_class_to_dict():
     assert intermediate_instance == expected_instance
 
 
-def test_format_to_iterable():
+def test_format_to_iterable() -> None:
     # list
     intermediate_lst = {'list': [1, 2, 'Hello', 'world', 3.14, {'set': ['set2', 'set1']}, {'tuple': ['tuple1', 2]},
                                  {'item1': 1}]}
@@ -292,7 +292,7 @@ def test_format_to_iterable():
     assert b_arr == expected_b_arr
 
 
-def test_format_to_dict():
+def test_format_to_dict() -> None:
     intermediate_dct = {'lst': {'list': [1, 2, 'Hello', 'world', 3.14, {'tuple': ['tuple1', 2]}, {'item1': 1}]},
                         'tpl': {'tuple': [1, 2, 'Hello', 'world', 3.14, {'tuple': ['tuple1', 2]}, {'item1': 1},
                                           {'list': ['list', 3.14, 10, 12]}]}, 'one': 1}
@@ -302,7 +302,7 @@ def test_format_to_dict():
     assert dct == expected_dct
 
 
-def test_form_to_code():
+def test_form_to_code() -> None:
     intermediate_code = {'co_argcount': 1, 'co_posonlyargcount': 0, 'co_kwonlyargcount': 0, 'co_nlocals': 2,
                          'co_stacksize': 4, 'co_flags': 67,
                          'co_code': '64017d0174007c01830101007401a0027c007c01140074031400a1015300',
@@ -317,7 +317,7 @@ def test_form_to_code():
     assert code == expected_code
 
 
-def test_format_to_function():
+def test_format_to_function() -> None:
     intermediate_func = {'function': {'__closure__': None,
                                       "__code__": {'co_argcount': 1, 'co_posonlyargcount': 0, 'co_kwonlyargcount': 0,
                                                    'co_nlocals': 2, 'co_stacksize': 4,
@@ -342,14 +342,14 @@ def test_format_to_function():
     assert func.__defaults__ == expected_func.__defaults__
 
 
-def test_format_to_module():
+def test_format_to_module() -> None:
     intermediate_module = {'module': {'name': 'math'}}
     module = IntermediateFormatSerializer.format_to_module(intermediate_module['module'])
     expected_module = __import__("math")
     assert module == expected_module
 
 
-def test_format_to_class():
+def test_format_to_class() -> None:
     init_lno = ExampleClass.__init__.__code__.co_firstlineno
     get_lno = ExampleClass.get_value.__code__.co_firstlineno
     print_lno = ExampleClass.print_value.__code__.co_firstlineno
@@ -412,7 +412,7 @@ def test_format_to_class():
     assert cls.static_value == expected_cls.static_value
 
 
-def test_format_to_instance_of_class():
+def test_format_to_instance_of_class() -> None:
     location = '/home/matvey/Documents/Projects/Python lab rab/lab rab 2/tests/test_intermediate_format_serializer.py'
     init_lno = ExampleClass.__init__.__code__.co_firstlineno
     get_lno = ExampleClass.get_value.__code__.co_firstlineno
