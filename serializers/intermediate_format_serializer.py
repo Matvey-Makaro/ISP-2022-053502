@@ -1,13 +1,28 @@
+"""
+The module that allows you to convert objects to the intermediate format(dict or primitives) and back.
+Contains a class IntermediateFormatSerializer.
+"""
 import builtins
 import inspect
 from types import *
-from serialization_cfg import CODE_ATTRIBUTES, ITERABLES, PRIMITIVES, CODE_FIELD_NAME, GLOBALS_FIELD_NAME, \
+from typing import Any
+
+from serializers.serialization_cfg import CODE_ATTRIBUTES, ITERABLES, PRIMITIVES, CODE_FIELD_NAME, GLOBALS_FIELD_NAME, \
     DEFAULTS_FIELD_NAME, CLOSURE_FIELD_NAME, CODE_NAMES_FIELD_NAME
 
 
 class IntermediateFormatSerializer:
+    """
+    Class that allows to convert objects to the intermediate format and vice versa.
+    Provides two main methods obj_to_intermediate_format and intermediate_format_to_obj.
+    """
     @staticmethod
-    def obj_to_intermediate_format(obj) -> dict or PRIMITIVES:
+    def obj_to_intermediate_format(obj: Any) -> dict or PRIMITIVES:
+        """
+        Convert objects to the intermediate format(dict or primitives).
+        :param obj: Any
+        :return: dict or PRIMITIVES
+        """
         result = {}
         tp_name = type(obj).__name__
         if tp_name in PRIMITIVES:
@@ -26,7 +41,12 @@ class IntermediateFormatSerializer:
         return IntermediateFormatSerializer.instance_of_class_to_dict(obj)
 
     @staticmethod
-    def intermediate_format_to_obj(form: dict or PRIMITIVES):
+    def intermediate_format_to_obj(form: dict or PRIMITIVES) -> Any:
+        """
+        Convert intermediate format to the object.
+        :param form: dict or PRIMITIVES
+        :return: Any
+        """
         if type(form) == dict:
             for key, value in form.items():
                 if key in ITERABLES:
@@ -50,15 +70,30 @@ class IntermediateFormatSerializer:
 
     @staticmethod
     def iterable_to_dict(iterable: ITERABLES) -> dict:
+        """
+        Convert ITERABLES(list, tuple, set, frozenset or bytearray to dictionary).
+        :param iterable: ITERABLES
+        :return: dict
+        """
         return {type(iterable).__name__: [IntermediateFormatSerializer.obj_to_intermediate_format(i) for i in iterable]}
 
     @staticmethod
     def dict_to_dict(dictionary: dict) -> dict:
+        """
+        Convert dictionary to dictionary.
+        :param dictionary: dict
+        :return: dict
+        """
         return {key: IntermediateFormatSerializer.obj_to_intermediate_format(value) for
                 key, value in dictionary.items()}
 
     @staticmethod
-    def code_to_dict(code) -> dict:
+    def code_to_dict(code: CodeType) -> dict:
+        """
+        Convert code to dicitonary.
+        :param code: CodeType
+        :return: dict
+        """
         result = {}
         for attr in CODE_ATTRIBUTES:
             # result[attr] = obj_to_intermediate_format(code.__getattribute__(attr))
@@ -70,7 +105,12 @@ class IntermediateFormatSerializer:
         return result
 
     @staticmethod
-    def function_to_dict(function) -> dict:
+    def function_to_dict(function: FunctionType) -> dict:
+        """
+        Convert function to dictionary.
+        :param function: FunctionType
+        :return: dict
+        """
         result = {}
         for name, value in inspect.getmembers(function):
             if name == DEFAULTS_FIELD_NAME or name == CLOSURE_FIELD_NAME:
@@ -93,7 +133,12 @@ class IntermediateFormatSerializer:
         return result
 
     @staticmethod
-    def class_to_dict(cls) -> dict:
+    def class_to_dict(cls: type) -> dict:
+        """
+        Convert class to dictionary.
+        :param cls: type
+        :return: dict
+        """
         bases = tuple(filter(
             lambda base: not getattr(builtins, base.__name__, None) and not getattr(builtins, base.__qualname__, None),
             cls.__bases__))
@@ -105,37 +150,77 @@ class IntermediateFormatSerializer:
 
     @staticmethod
     def instance_of_class_to_dict(obj) -> dict:
+        """
+        Convert instance of class to dictionary.
+        :param obj:
+        :return: dict
+        """
         result = {"class": IntermediateFormatSerializer.obj_to_intermediate_format(obj.__class__),
                   "attrs": IntermediateFormatSerializer.obj_to_intermediate_format(obj.__dict__)}
         return {"object": result}
 
     @staticmethod
-    def module_to_dict(module) -> dict:
+    def module_to_dict(module: ModuleType) -> dict:
+        """
+        Convert module to dictionary.
+        :param module: ModuleType
+        :return: dict
+        """
         result = {"name": module.__name__}
         return {"module": result}
 
     @staticmethod
     def format_to_tuple(form: list) -> tuple:
+        """
+        Convert intermediate format to tuple.
+        :param form: list
+        :return: tuple.
+        """
         return tuple(IntermediateFormatSerializer.intermediate_format_to_obj(i) for i in form)
 
     @staticmethod
     def format_to_list(form: list) -> list:
+        """
+        Convert intermediate format to list.
+        :param form: list
+        :return: list
+        """
         return [IntermediateFormatSerializer.intermediate_format_to_obj(i) for i in form]
 
     @staticmethod
     def format_to_set(form: list) -> set:
+        """
+        Convert intermediate format to set.
+        :param form: list
+        :return: set
+        """
         return {IntermediateFormatSerializer.intermediate_format_to_obj(i) for i in form}
 
     @staticmethod
     def format_to_frozenset(form: list) -> frozenset:
+        """
+        Convert intermediate format to
+        :param form: list
+        :return: frozenset
+        """
         return frozenset([IntermediateFormatSerializer.intermediate_format_to_obj(i) for i in form])
 
     @staticmethod
     def format_to_bytearray(form: list) -> bytearray:
+        """
+        Convert intermediate format to bytearray.
+        :param form: list
+        :return: bytearray
+        """
         return bytearray([IntermediateFormatSerializer.intermediate_format_to_obj(i) for i in form])
 
     @staticmethod
     def format_to_iterable(form: dict) -> ITERABLES:
+        """
+        Convert intermediate format to ITERABLES(list, tuple, set, frozenset or bytearray to dictionary).
+        :param form: dict
+        :return: ITERABLES
+        """
         for key, value in form.items():
             if key == ITERABLES[0]:
                 return IntermediateFormatSerializer.format_to_list(value)
@@ -150,13 +235,23 @@ class IntermediateFormatSerializer:
 
     @staticmethod
     def format_to_dict(form: dict) -> dict:
+        """
+        Convert intermediate format to dictionary.
+        :param form: dict
+        :return: dict
+        """
         result = {}
         for key, value in form.items():
             result[key] = IntermediateFormatSerializer.intermediate_format_to_obj(value)
         return result
 
     @staticmethod
-    def form_to_code(form):
+    def form_to_code(form: dict) -> CodeType:
+        """
+        Convert intermediate format to code.
+        :param form: dict
+        :return: CodeType
+        """
         return CodeType(
             IntermediateFormatSerializer.intermediate_format_to_obj(form[CODE_ATTRIBUTES[0]]),
             IntermediateFormatSerializer.intermediate_format_to_obj(form[CODE_ATTRIBUTES[1]]),
@@ -176,7 +271,12 @@ class IntermediateFormatSerializer:
             IntermediateFormatSerializer.intermediate_format_to_obj(form[CODE_ATTRIBUTES[15]]))
 
     @staticmethod
-    def format_to_function(form):
+    def format_to_function(form: dict) -> FunctionType:
+        """
+        Convert intermediate format to function.
+        :param form: dict
+        :return: FunctionType
+        """
         code = IntermediateFormatSerializer.form_to_code(form[CODE_FIELD_NAME])
         default = form[DEFAULTS_FIELD_NAME]
         glob = IntermediateFormatSerializer.intermediate_format_to_obj(form[GLOBALS_FIELD_NAME])
@@ -188,11 +288,21 @@ class IntermediateFormatSerializer:
         return FunctionType(code, glob, None, default, closure)
 
     @staticmethod
-    def format_to_module(form):
+    def format_to_module(form: dict) -> ModuleType:
+        """
+        Convert intermediate format to module.
+        :param form: dict
+        :return: ModuleType
+        """
         return __import__(form["name"])
 
     @staticmethod
-    def format_to_class(cls: dict):
+    def format_to_class(cls: dict) -> type:
+        """
+        Convert intermediate format to class.
+        :param cls: dict
+        :return: type
+        """
         bases = IntermediateFormatSerializer.intermediate_format_to_obj(cls["bases"])
         attrs = IntermediateFormatSerializer.intermediate_format_to_obj(cls["attrs"])
 
@@ -202,6 +312,11 @@ class IntermediateFormatSerializer:
 
     @staticmethod
     def format_to_instance_of_class(form: dict):
+        """
+        Convert intermediate format to instance of class.
+        :param form: dict
+        :return:
+        """
         cls = IntermediateFormatSerializer.intermediate_format_to_obj(form["class"])
         attrs = IntermediateFormatSerializer.intermediate_format_to_obj(form["attrs"])
         tmp_init = getattr(cls, "__init__", None)
