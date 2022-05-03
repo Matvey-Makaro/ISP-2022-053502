@@ -34,7 +34,7 @@ def test_dumps() -> None:
 
 
 def test_dump() -> None:
-    file_name = "file.txt"
+    file_name = "jsonfile.txt"
     JsonSerializer.dump(f, file_name)
     with open(file_name, "r") as file:
         ser_f = file.readline()
@@ -75,7 +75,7 @@ def test_loads() -> None:
 
 
 def test_load() -> None:
-    file_name = "file.txt"
+    file_name = "jsonfile.txt"
     deser_f = JsonSerializer.load(file_name)
     expected_f = f
     assert deser_f.__closure__ == expected_f.__closure__
