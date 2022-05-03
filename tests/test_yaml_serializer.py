@@ -1,4 +1,4 @@
-from yaml_serializer import YamlSerializer
+from serializers.yaml_serializer import YamlSerializer
 
 import math
 

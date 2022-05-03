@@ -1,4 +1,4 @@
-from toml_serializer import TomlSerializer
+from serializers.toml_serializer import TomlSerializer
 
 
 def test_dumps() -> None:

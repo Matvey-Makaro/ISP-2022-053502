@@ -1,23 +1,24 @@
-from serializer import Serializer
-from intermediate_format_serializer import IntermediateFormatSerializer
-import yaml
+from serializers.serializer import Serializer
+from serializers.intermediate_format_serializer import IntermediateFormatSerializer
+import tomli
+import tomli_w
 
 
-class YamlSerializer(Serializer):
+class TomlSerializer(Serializer):
     @staticmethod
     def dumps(obj) -> str:
         form = IntermediateFormatSerializer.obj_to_intermediate_format(obj)
-        return yaml.dump(form)
+        return tomli_w.dumps(form)
 
     @staticmethod
     def dump(obj, file: str) -> None:
         form = IntermediateFormatSerializer.obj_to_intermediate_format(obj)
         with open(file, 'w') as f:
-            f.write(yaml.dump(form))
+            f.write(tomli_w.dumps(form))
 
     @staticmethod
     def loads(serialized_obj: str):
-        form = yaml.load(serialized_obj, Loader=yaml.Loader)
+        form = tomli.loads(serialized_obj)
         return IntermediateFormatSerializer.intermediate_format_to_obj(form)
 
     @staticmethod
@@ -26,5 +27,5 @@ class YamlSerializer(Serializer):
         with open(file, "r") as f:
             for line in f:
                 ser_obj += line
-            form = yaml.load(ser_obj, Loader=yaml.Loader)
+            form = tomli.loads(ser_obj)
         return IntermediateFormatSerializer.intermediate_format_to_obj(form)

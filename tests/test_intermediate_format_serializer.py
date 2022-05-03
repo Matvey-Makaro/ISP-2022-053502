@@ -1,6 +1,5 @@
-import pytest
 import math
-from intermediate_format_serializer import IntermediateFormatSerializer
+from serializers.intermediate_format_serializer import IntermediateFormatSerializer
 
 c = 42
 

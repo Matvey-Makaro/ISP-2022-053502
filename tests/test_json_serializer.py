@@ -1,5 +1,4 @@
-import pytest
-from json_serializer import JsonSerializer
+from serializers.json_serializer import JsonSerializer
 
 import math
 

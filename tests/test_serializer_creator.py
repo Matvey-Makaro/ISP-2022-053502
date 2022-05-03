@@ -1,7 +1,7 @@
-from serializer_creator import SerializerCreator
-from json_serializer import JsonSerializer
-from toml_serializer import TomlSerializer
-from yaml_serializer import YamlSerializer
+from serializers.serializer_creator import SerializerCreator
+from serializers.json_serializer import JsonSerializer
+from serializers.toml_serializer import TomlSerializer
+from serializers.yaml_serializer import YamlSerializer
 
 
 def test_create_serializer() -> None:

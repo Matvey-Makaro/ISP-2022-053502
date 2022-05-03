@@ -1,5 +1,5 @@
-from serializer import Serializer
-from json_serializer import JsonSerializer
+from serializers.serializer import Serializer
+from serializers.json_serializer import JsonSerializer
 from toml_serializer import TomlSerializer
 from yaml_serializer import YamlSerializer
 
