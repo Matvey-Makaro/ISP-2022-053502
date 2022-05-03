@@ -28,9 +28,9 @@ class JsonSerializer(Serializer):
     def dump(obj: Any, file_name: str) -> None:
         """
         Conver object to json format and write result to file with name "file_name".
-        :param obj:
-        :param file_name:
-        :return:
+        :param obj: Any
+        :param file_name: str
+        :return: None
         """
         form = IntermediateFormatSerializer.obj_to_intermediate_format(obj)
         with open(file_name, 'w') as f:
