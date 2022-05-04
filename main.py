@@ -42,7 +42,5 @@ def main() -> None:
     print(desr_cls.static_value)
 
 
-
 if __name__ == '__main__':
     main()
-
