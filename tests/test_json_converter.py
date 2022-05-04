@@ -1,5 +1,5 @@
 import pytest
-from json_converter import JsonConverter
+from json_converter.json_converter import JsonConverter
 
 
 def test_to_json() -> None:

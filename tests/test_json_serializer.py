@@ -19,7 +19,7 @@ def test_dumps() -> None:
                      '"co_consts": {"tuple": [null, 123]}, "co_names": ' \
                      '{"tuple": ["print", "math", "sin", "c"]}, "co_varnames": {"tuple": ["x", "a"]}, "co_filename": ' \
                      '"/home/matvey/Documents/Projects/Python lab rab/lab rab 2/tests/test_json_serializer.py", ' \
-                     '"co_name": "f", "co_firstlineno": 9, "co_lnotab": "000104010801", "co_freevars": {"tuple": []}, '\
+                     '"co_name": "f", "co_firstlineno": 8, "co_lnotab": "000104010801", "co_freevars": {"tuple": []}, '\
                      '"co_cellvars": {"tuple": []}}, "__globals__": {"math": {"module": {"name": "math"}}, "c": 42}, ' \
                      '"__defaults__": null}}'
     assert ser_f == expected_ser_f
@@ -43,7 +43,7 @@ def test_dump() -> None:
                      '"co_consts": {"tuple": [null, 123]}, "co_names": ' \
                      '{"tuple": ["print", "math", "sin", "c"]}, "co_varnames": {"tuple": ["x", "a"]}, "co_filename": ' \
                      '"/home/matvey/Documents/Projects/Python lab rab/lab rab 2/tests/test_json_serializer.py", ' \
-                     '"co_name": "f", "co_firstlineno": 9, "co_lnotab": "000104010801", "co_freevars": {"tuple": []}, ' \
+                     '"co_name": "f", "co_firstlineno": 8, "co_lnotab": "000104010801", "co_freevars": {"tuple": []}, ' \
                      '"co_cellvars": {"tuple": []}}, "__globals__": {"math": {"module": {"name": "math"}}, "c": 42}, ' \
                      '"__defaults__": null}}'
     assert ser_f == expected_ser_f
@@ -56,7 +56,7 @@ def test_loads() -> None:
                      '"co_consts": {"tuple": [null, 123]}, "co_names": ' \
                      '{"tuple": ["print", "math", "sin", "c"]}, "co_varnames": {"tuple": ["x", "a"]}, "co_filename": ' \
                      '"/home/matvey/Documents/Projects/Python lab rab/lab rab 2/tests/test_json_serializer.py", ' \
-                     '"co_name": "f", "co_firstlineno": 9, "co_lnotab": "000104010801", "co_freevars": {"tuple": []}, ' \
+                     '"co_name": "f", "co_firstlineno": 8, "co_lnotab": "000104010801", "co_freevars": {"tuple": []}, ' \
                      '"co_cellvars": {"tuple": []}}, "__globals__": {"math": {"module": {"name": "math"}}, "c": 42}, ' \
                      '"__defaults__": null}}'
     deser_f = JsonSerializer.loads(ser_f)
