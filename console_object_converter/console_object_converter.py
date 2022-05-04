@@ -5,6 +5,7 @@ A module that allows you to convert json, yaml or toml file into a json, yaml or
 from argparse import ArgumentParser
 from configparser import ConfigParser
 from serializers.serializer_creator import SerializerCreator
+from pathlib import Path
 
 
 def convert_file(input_file_name: str, input_format: str, output_format: str) -> None:
@@ -18,7 +19,8 @@ def convert_file(input_file_name: str, input_format: str, output_format: str) ->
     """
     if input_format == output_format:
         return None
-    output_file_name = input_file_name + "." + output_format
+    path = Path(input_file_name)
+    output_file_name = str(path.stem) + "." + output_format
     try:
         input_serializer = SerializerCreator.create(input_format)
         output_serializer = SerializerCreator.create(output_format)
