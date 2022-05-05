@@ -1,6 +1,6 @@
 """The module that provides class SerializerCreator to create serializers of different formats."""
-from serializers.serializer import Serializer
 from serializers.json_serializer import JsonSerializer
+from serializers.serializer import Serializer
 from serializers.toml_serializer import TomlSerializer
 from serializers.yaml_serializer import YamlSerializer
 

@@ -4,9 +4,9 @@ Contains a class JsonSerializer.
 """
 from typing import Any
 
-from serializers.serializer import Serializer
-from serializers.intermediate_format_serializer import IntermediateFormatSerializer
 from json_converter.json_converter import JsonConverter
+from serializers.intermediate_format_serializer import IntermediateFormatSerializer
+from serializers.serializer import Serializer
 
 
 class JsonSerializer(Serializer):

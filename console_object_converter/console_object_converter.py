@@ -4,8 +4,9 @@ A module that allows you to convert json, yaml or toml file into a json, yaml or
 
 from argparse import ArgumentParser
 from configparser import ConfigParser
-from serializers.serializer_creator import SerializerCreator
 from pathlib import Path
+
+from serializers.serializer_creator import SerializerCreator
 
 
 def convert_file(input_file_name: str, input_format: str, output_format: str) -> None:

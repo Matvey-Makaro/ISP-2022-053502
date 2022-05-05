@@ -4,9 +4,10 @@ Contains a class YamlSerializer.
 """
 from typing import Any
 
-from serializers.serializer import Serializer
-from serializers.intermediate_format_serializer import IntermediateFormatSerializer
 import yaml
+
+from serializers.intermediate_format_serializer import IntermediateFormatSerializer
+from serializers.serializer import Serializer
 
 
 class YamlSerializer(Serializer):

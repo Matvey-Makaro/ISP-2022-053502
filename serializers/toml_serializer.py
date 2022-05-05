@@ -4,10 +4,11 @@ Contains a class TomlSerializer.
 """
 from typing import Any
 
-from serializers.serializer import Serializer
-from serializers.intermediate_format_serializer import IntermediateFormatSerializer
 import tomli
 import tomli_w
+
+from serializers.intermediate_format_serializer import IntermediateFormatSerializer
+from serializers.serializer import Serializer
 
 
 class TomlSerializer(Serializer):
