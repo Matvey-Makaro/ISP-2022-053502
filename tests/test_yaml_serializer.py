@@ -56,7 +56,7 @@ def test_dumps() -> None:
     assert ser_f == expected_ser_f
 
     # simple test
-    lst = [1, 2, 'Hello', 'world', 3.14, ('tuple1', 2), {'item1': 1}]
+    lst = [1, 2, "Hello", "world", 3.14, ("tuple1", 2), {"item1": 1}]
     ser_lst = YamlSerializer.dumps(lst)
     expected_ser_lst = """list:
 - 1

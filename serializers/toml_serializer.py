@@ -38,7 +38,7 @@ class TomlSerializer(Serializer):
         """
         form = IntermediateFormatSerializer.obj_to_intermediate_format(obj)
         form = TomlSerializer._prepare_to_serialize(form)
-        with open(file_name, 'w') as f:
+        with open(file_name, "w") as f:
             f.write(tomli_w.dumps(form))
 
     @staticmethod

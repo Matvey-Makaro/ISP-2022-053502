@@ -9,6 +9,7 @@ class Serializer(ABC):
     """
     Abstract class which provides interface for other serializers.
     """
+
     @staticmethod
     @abstractmethod
     def dumps(obj: Any) -> str:
@@ -18,7 +19,7 @@ class Serializer(ABC):
     @staticmethod
     @abstractmethod
     def dump(obj: Any, file_name: str) -> None:
-        """Convert object to string of some format and write this string to file with name "file_name". """""
+        """Convert object to string of some format and write this string to file with name "file_name". """ ""
         pass
 
     @staticmethod

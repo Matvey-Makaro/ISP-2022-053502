@@ -7,6 +7,7 @@ from serializers.yaml_serializer import YamlSerializer
 
 class SerializerCreator:
     """Class with main method create to create serializers of different formats."""
+
     @staticmethod
     def create(serializer_name: str) -> Serializer:
         """Returns particular serializer with received serializer name. (Possible : Json, Yaml, Toml)."""

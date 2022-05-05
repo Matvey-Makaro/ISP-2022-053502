@@ -84,11 +84,13 @@ def main() -> None:
 
     if args.config_file is not None:
         config_file_name = args.config_file
-        input_file_name, input_format, output_format = parse_config_file(config_file_name)
+        input_file_name, input_format, output_format = parse_config_file(
+            config_file_name
+        )
     else:
         input_file_name, input_format, output_format = parse_args(args)
     convert_file(input_file_name, input_format, output_format)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

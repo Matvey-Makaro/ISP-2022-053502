@@ -18,25 +18,25 @@ CODE_ATTRIBUTES = (
     "co_firstlineno",
     "co_lnotab",
     "co_freevars",
-    "co_cellvars"
+    "co_cellvars",
 )
 
 ITERABLES = (
-    'list',
-    'tuple',
-    'set',
-    'frozenset',
-    'bytearray',
+    "list",
+    "tuple",
+    "set",
+    "frozenset",
+    "bytearray",
 )
 
 PRIMITIVES = (
-    'int',
-    'float',
-    'complex',
-    'bool',
-    'str',
-    'bytes',
-    'NoneType',
+    "int",
+    "float",
+    "complex",
+    "bool",
+    "str",
+    "bytes",
+    "NoneType",
 )
 
 CODE_FIELD_NAME = "__code__"

@@ -14,6 +14,7 @@ class JsonSerializer(Serializer):
     Class that allows to convert objects to json format and vice versa.
     Provides four main methods: dumps, dump, loads, load.
     """
+
     @staticmethod
     def dumps(obj: Any) -> str:
         """
@@ -33,7 +34,7 @@ class JsonSerializer(Serializer):
         :return: None
         """
         form = IntermediateFormatSerializer.obj_to_intermediate_format(obj)
-        with open(file_name, 'w') as f:
+        with open(file_name, "w") as f:
             f.write(JsonConverter.to_json(form))
 
     @staticmethod

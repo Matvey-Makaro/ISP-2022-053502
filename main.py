@@ -90,5 +90,5 @@ def main() -> None:
     print(deser_func(7))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

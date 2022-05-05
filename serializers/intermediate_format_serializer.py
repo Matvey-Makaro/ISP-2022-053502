@@ -7,8 +7,16 @@ import inspect
 from types import *
 from typing import Any
 
-from serializers.serialization_cfg import CODE_ATTRIBUTES, ITERABLES, PRIMITIVES, CODE_FIELD_NAME, GLOBALS_FIELD_NAME, \
-    DEFAULTS_FIELD_NAME, CLOSURE_FIELD_NAME, CODE_NAMES_FIELD_NAME
+from serializers.serialization_cfg import (
+    CODE_ATTRIBUTES,
+    ITERABLES,
+    PRIMITIVES,
+    CODE_FIELD_NAME,
+    GLOBALS_FIELD_NAME,
+    DEFAULTS_FIELD_NAME,
+    CLOSURE_FIELD_NAME,
+    CODE_NAMES_FIELD_NAME,
+)
 
 
 class IntermediateFormatSerializer:
@@ -16,6 +24,7 @@ class IntermediateFormatSerializer:
     Class that allows to convert objects to the intermediate format and vice versa.
     Provides two main methods obj_to_intermediate_format and intermediate_format_to_obj.
     """
+
     @staticmethod
     def obj_to_intermediate_format(obj: Any) -> dict or PRIMITIVES:
         """
@@ -51,14 +60,16 @@ class IntermediateFormatSerializer:
             for key, value in form.items():
                 if key in ITERABLES:
                     return IntermediateFormatSerializer.format_to_iterable(form)
-                if key == 'function':
+                if key == "function":
                     return IntermediateFormatSerializer.format_to_function(value)
-                if key == 'module':
+                if key == "module":
                     return IntermediateFormatSerializer.format_to_module(value)
-                if key == 'class':
+                if key == "class":
                     return IntermediateFormatSerializer.format_to_class(value)
-                if key == 'object':
-                    return IntermediateFormatSerializer.format_to_instance_of_class(value)
+                if key == "object":
+                    return IntermediateFormatSerializer.format_to_instance_of_class(
+                        value
+                    )
                 else:
                     return IntermediateFormatSerializer.format_to_dict(form)
             else:
@@ -75,7 +86,12 @@ class IntermediateFormatSerializer:
         :param iterable: ITERABLES
         :return: dict
         """
-        return {type(iterable).__name__: [IntermediateFormatSerializer.obj_to_intermediate_format(i) for i in iterable]}
+        return {
+            type(iterable).__name__: [
+                IntermediateFormatSerializer.obj_to_intermediate_format(i)
+                for i in iterable
+            ]
+        }
 
     @staticmethod
     def dict_to_dict(dictionary: dict) -> dict:
@@ -84,8 +100,10 @@ class IntermediateFormatSerializer:
         :param dictionary: dict
         :return: dict
         """
-        return {key: IntermediateFormatSerializer.obj_to_intermediate_format(value) for
-                key, value in dictionary.items()}
+        return {
+            key: IntermediateFormatSerializer.obj_to_intermediate_format(value)
+            for key, value in dictionary.items()
+        }
 
     @staticmethod
     def code_to_dict(code: CodeType) -> dict:
@@ -97,11 +115,14 @@ class IntermediateFormatSerializer:
         result = {}
         for attr in CODE_ATTRIBUTES:
             # result[attr] = obj_to_intermediate_format(code.__getattribute__(attr))
-            if attr == "co_code" or attr == 'co_lnotab':
+            if attr == "co_code" or attr == "co_lnotab":
                 result[attr] = IntermediateFormatSerializer.obj_to_intermediate_format(
-                    code.__getattribute__(attr).hex())
+                    code.__getattribute__(attr).hex()
+                )
             else:
-                result[attr] = IntermediateFormatSerializer.obj_to_intermediate_format(code.__getattribute__(attr))
+                result[attr] = IntermediateFormatSerializer.obj_to_intermediate_format(
+                    code.__getattribute__(attr)
+                )
         return result
 
     @staticmethod
@@ -114,11 +135,15 @@ class IntermediateFormatSerializer:
         result = {}
         for name, value in inspect.getmembers(function):
             if name == DEFAULTS_FIELD_NAME or name == CLOSURE_FIELD_NAME:
-                result[name] = IntermediateFormatSerializer.obj_to_intermediate_format(value)
+                result[name] = IntermediateFormatSerializer.obj_to_intermediate_format(
+                    value
+                )
                 continue
             if name == CODE_FIELD_NAME:
                 code = value
-                result[CODE_FIELD_NAME] = IntermediateFormatSerializer.code_to_dict(code)
+                result[CODE_FIELD_NAME] = IntermediateFormatSerializer.code_to_dict(
+                    code
+                )
                 result[GLOBALS_FIELD_NAME] = {}
                 glob = function.__getattribute__(GLOBALS_FIELD_NAME)
                 for co_name in code.__getattribute__(CODE_NAMES_FIELD_NAME):
@@ -127,8 +152,11 @@ class IntermediateFormatSerializer:
                         continue
                         # and not inspect.ismodule(glob[co_name]) and not inspect.isbuiltin(glob[co_name])
                     if co_name in glob:
-                        result[GLOBALS_FIELD_NAME][co_name] = \
-                            IntermediateFormatSerializer.obj_to_intermediate_format(glob[co_name])
+                        result[GLOBALS_FIELD_NAME][
+                            co_name
+                        ] = IntermediateFormatSerializer.obj_to_intermediate_format(
+                            glob[co_name]
+                        )
         result = {"function": result}
         return result
 
@@ -139,13 +167,24 @@ class IntermediateFormatSerializer:
         :param cls: type
         :return: dict
         """
-        bases = tuple(filter(
-            lambda base: not getattr(builtins, base.__name__, None) and not getattr(builtins, base.__qualname__, None),
-            cls.__bases__))
-        attrs = {key: value for key, value in cls.__dict__.items() if key != "__dict__" and key != "__weakref__"}
-        result = {"name": cls.__name__, "qualname": cls.__qualname__,
-                  "bases": IntermediateFormatSerializer.obj_to_intermediate_format(bases),
-                  "attrs": IntermediateFormatSerializer.obj_to_intermediate_format(attrs)}
+        bases = tuple(
+            filter(
+                lambda base: not getattr(builtins, base.__name__, None)
+                and not getattr(builtins, base.__qualname__, None),
+                cls.__bases__,
+            )
+        )
+        attrs = {
+            key: value
+            for key, value in cls.__dict__.items()
+            if key != "__dict__" and key != "__weakref__"
+        }
+        result = {
+            "name": cls.__name__,
+            "qualname": cls.__qualname__,
+            "bases": IntermediateFormatSerializer.obj_to_intermediate_format(bases),
+            "attrs": IntermediateFormatSerializer.obj_to_intermediate_format(attrs),
+        }
         return {"class": result}
 
     @staticmethod
@@ -155,8 +194,14 @@ class IntermediateFormatSerializer:
         :param obj:
         :return: dict
         """
-        result = {"class": IntermediateFormatSerializer.obj_to_intermediate_format(obj.__class__),
-                  "attrs": IntermediateFormatSerializer.obj_to_intermediate_format(obj.__dict__)}
+        result = {
+            "class": IntermediateFormatSerializer.obj_to_intermediate_format(
+                obj.__class__
+            ),
+            "attrs": IntermediateFormatSerializer.obj_to_intermediate_format(
+                obj.__dict__
+            ),
+        }
         return {"object": result}
 
     @staticmethod
@@ -176,7 +221,9 @@ class IntermediateFormatSerializer:
         :param form: list
         :return: tuple.
         """
-        return tuple(IntermediateFormatSerializer.intermediate_format_to_obj(i) for i in form)
+        return tuple(
+            IntermediateFormatSerializer.intermediate_format_to_obj(i) for i in form
+        )
 
     @staticmethod
     def format_to_list(form: list) -> list:
@@ -185,7 +232,9 @@ class IntermediateFormatSerializer:
         :param form: list
         :return: list
         """
-        return [IntermediateFormatSerializer.intermediate_format_to_obj(i) for i in form]
+        return [
+            IntermediateFormatSerializer.intermediate_format_to_obj(i) for i in form
+        ]
 
     @staticmethod
     def format_to_set(form: list) -> set:
@@ -194,7 +243,9 @@ class IntermediateFormatSerializer:
         :param form: list
         :return: set
         """
-        return {IntermediateFormatSerializer.intermediate_format_to_obj(i) for i in form}
+        return {
+            IntermediateFormatSerializer.intermediate_format_to_obj(i) for i in form
+        }
 
     @staticmethod
     def format_to_frozenset(form: list) -> frozenset:
@@ -203,7 +254,9 @@ class IntermediateFormatSerializer:
         :param form: list
         :return: frozenset
         """
-        return frozenset([IntermediateFormatSerializer.intermediate_format_to_obj(i) for i in form])
+        return frozenset(
+            [IntermediateFormatSerializer.intermediate_format_to_obj(i) for i in form]
+        )
 
     @staticmethod
     def format_to_bytearray(form: list) -> bytearray:
@@ -212,7 +265,9 @@ class IntermediateFormatSerializer:
         :param form: list
         :return: bytearray
         """
-        return bytearray([IntermediateFormatSerializer.intermediate_format_to_obj(i) for i in form])
+        return bytearray(
+            [IntermediateFormatSerializer.intermediate_format_to_obj(i) for i in form]
+        )
 
     @staticmethod
     def format_to_iterable(form: dict) -> ITERABLES:
@@ -253,22 +308,55 @@ class IntermediateFormatSerializer:
         :return: CodeType
         """
         return CodeType(
-            IntermediateFormatSerializer.intermediate_format_to_obj(form[CODE_ATTRIBUTES[0]]),
-            IntermediateFormatSerializer.intermediate_format_to_obj(form[CODE_ATTRIBUTES[1]]),
-            IntermediateFormatSerializer.intermediate_format_to_obj(form[CODE_ATTRIBUTES[2]]),
-            IntermediateFormatSerializer.intermediate_format_to_obj(form[CODE_ATTRIBUTES[3]]),
-            IntermediateFormatSerializer.intermediate_format_to_obj(form[CODE_ATTRIBUTES[4]]),
-            IntermediateFormatSerializer.intermediate_format_to_obj(form[CODE_ATTRIBUTES[5]]),
-            IntermediateFormatSerializer.intermediate_format_to_obj(bytes.fromhex(form[CODE_ATTRIBUTES[6]])),
-            IntermediateFormatSerializer.intermediate_format_to_obj(form[CODE_ATTRIBUTES[7]]),
-            IntermediateFormatSerializer.intermediate_format_to_obj(form[CODE_ATTRIBUTES[8]]),
-            IntermediateFormatSerializer.intermediate_format_to_obj(form[CODE_ATTRIBUTES[9]]),
-            IntermediateFormatSerializer.intermediate_format_to_obj(form[CODE_ATTRIBUTES[10]]),
-            IntermediateFormatSerializer.intermediate_format_to_obj(form[CODE_ATTRIBUTES[11]]),
-            IntermediateFormatSerializer.intermediate_format_to_obj(form[CODE_ATTRIBUTES[12]]),
-            IntermediateFormatSerializer.intermediate_format_to_obj(bytes.fromhex(form[CODE_ATTRIBUTES[13]])),
-            IntermediateFormatSerializer.intermediate_format_to_obj(form[CODE_ATTRIBUTES[14]]),
-            IntermediateFormatSerializer.intermediate_format_to_obj(form[CODE_ATTRIBUTES[15]]))
+            IntermediateFormatSerializer.intermediate_format_to_obj(
+                form[CODE_ATTRIBUTES[0]]
+            ),
+            IntermediateFormatSerializer.intermediate_format_to_obj(
+                form[CODE_ATTRIBUTES[1]]
+            ),
+            IntermediateFormatSerializer.intermediate_format_to_obj(
+                form[CODE_ATTRIBUTES[2]]
+            ),
+            IntermediateFormatSerializer.intermediate_format_to_obj(
+                form[CODE_ATTRIBUTES[3]]
+            ),
+            IntermediateFormatSerializer.intermediate_format_to_obj(
+                form[CODE_ATTRIBUTES[4]]
+            ),
+            IntermediateFormatSerializer.intermediate_format_to_obj(
+                form[CODE_ATTRIBUTES[5]]
+            ),
+            IntermediateFormatSerializer.intermediate_format_to_obj(
+                bytes.fromhex(form[CODE_ATTRIBUTES[6]])
+            ),
+            IntermediateFormatSerializer.intermediate_format_to_obj(
+                form[CODE_ATTRIBUTES[7]]
+            ),
+            IntermediateFormatSerializer.intermediate_format_to_obj(
+                form[CODE_ATTRIBUTES[8]]
+            ),
+            IntermediateFormatSerializer.intermediate_format_to_obj(
+                form[CODE_ATTRIBUTES[9]]
+            ),
+            IntermediateFormatSerializer.intermediate_format_to_obj(
+                form[CODE_ATTRIBUTES[10]]
+            ),
+            IntermediateFormatSerializer.intermediate_format_to_obj(
+                form[CODE_ATTRIBUTES[11]]
+            ),
+            IntermediateFormatSerializer.intermediate_format_to_obj(
+                form[CODE_ATTRIBUTES[12]]
+            ),
+            IntermediateFormatSerializer.intermediate_format_to_obj(
+                bytes.fromhex(form[CODE_ATTRIBUTES[13]])
+            ),
+            IntermediateFormatSerializer.intermediate_format_to_obj(
+                form[CODE_ATTRIBUTES[14]]
+            ),
+            IntermediateFormatSerializer.intermediate_format_to_obj(
+                form[CODE_ATTRIBUTES[15]]
+            ),
+        )
 
     @staticmethod
     def format_to_function(form: dict) -> FunctionType:
@@ -279,7 +367,9 @@ class IntermediateFormatSerializer:
         """
         code = IntermediateFormatSerializer.form_to_code(form[CODE_FIELD_NAME])
         default = form[DEFAULTS_FIELD_NAME]
-        glob = IntermediateFormatSerializer.intermediate_format_to_obj(form[GLOBALS_FIELD_NAME])
+        glob = IntermediateFormatSerializer.intermediate_format_to_obj(
+            form[GLOBALS_FIELD_NAME]
+        )
         for key, value in globals().items():
             glob[key] = value
 
