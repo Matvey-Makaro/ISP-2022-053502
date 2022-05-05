@@ -38,8 +38,6 @@ class TomlSerializer(Serializer):
         """
         form = IntermediateFormatSerializer.obj_to_intermediate_format(obj)
         form = TomlSerializer._prepare_to_serialize(form)
-        with open(file_name, "w") as f:
-            f.write(tomli_w.dumps(form))
 
     @staticmethod
     def loads(serialized_obj: str) -> Any:
@@ -84,6 +82,9 @@ class TomlSerializer(Serializer):
                         obj[key][i] = "__none__"
             elif value is None:
                 obj[key] = "__none__"
+            elif key is None:
+                tmp = obj.pop(key)
+                obj["__none__"] = tmp
         return obj
 
     @staticmethod
@@ -102,4 +103,7 @@ class TomlSerializer(Serializer):
                         obj[key][i] = None
             elif value == "__none__":
                 obj[key] = None
+            elif key == "__none__":
+                tmp = obj.pop(key)
+                obj[None] = tmp
         return obj
